@@ -29,3 +29,20 @@ class Book(models.Model):
         return "%s by %s" % (self.title, self.author)
     def get_url(self):
         return self.repository.get_url() + self.path
+
+class APIKey(models.Model):
+    name = models.CharField(max_length = 256)
+    key = models.CharField(max_length = 56)
+    permissions = models.IntegerField(default = 0)
+
+    def get_permissions(self):
+        if self.permissions == 0:
+            return 'None'
+        elif self.permissions == 1:
+            return 'Read'
+        elif self.permissions == 2:
+            return 'Read/Write'
+        else:
+            return 'Unknown'
+    def __unicode__(self):
+        return "%s (%s)" % (self.name, self.get_permissions())

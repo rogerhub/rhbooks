@@ -15,6 +15,7 @@ class BookAdmin(admin.ModelAdmin):
             db_field, request, **kwargs
         )
 
+admin.site.register(APIKey)
 admin.site.register(Repository)
 admin.site.register(Book, BookAdmin)
 

@@ -1,3 +1,4 @@
+import hashlib
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -37,5 +38,35 @@ def hit(request):
         book.save()
         return redirect(book.get_url())
     except ObjectDoesNotExist as e:
-        return HttpResponse("error")
+        return HttpResponseForbidden("access denied\n")
 
+
+class api_auth(object):
+    def __init__(self, minimum_permissions):
+        self.minimum_permissions = minimum_permissions
+    def __call__(self, function):
+        def authenticated_function(request):
+            key = hashlib.sha224(request.POST.get('token', '')).hexdigest()
+            try:
+                apikey = APIKey.objects.get(key = key)
+                if apikey.permissions < self.minimum_permissions:
+                    return HttpResponse("access denied\n")
+            except ObjectDoesNotExist:
+                return HttpResponse("access denied\n")
+            return function(request)
+        return authenticated_function
+
+@api_auth(1)
+def api_verify(request):
+    return HttpResponse("done\n")
+
+@api_auth(2)
+def api_addbook(request):
+    Book(
+        user = User.objects.get(id = int(request.POST.get('user_id'))),
+        repository = Repository.objects.get(id = int(request.POST.get('repository_id'))),
+        path = request.POST.get('path', ''),
+        title = request.POST.get('title', ''),
+        author = request.POST.get('author', '')
+    ).save()
+    return HttpResponse("done\n")

@@ -1,8 +1,10 @@
+##
+## rhbooks Django Configuration
+##
+
 import os
 
 PROJECT_PATH = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
-
-# Django settings for rhbooks project.
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -147,3 +149,6 @@ LOGGING = {
         },
     }
 }
+
+if os.environ.get('DEBUG', None):
+    from settings_dev import *
